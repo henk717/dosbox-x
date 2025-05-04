@@ -6831,6 +6831,78 @@ static void launcheditor(std::string edit) {
 extern void DEBUG_ShutDown(Section * /*sec*/);
 #endif
 
+void restart_program(std::vector<std::string> & parameters) {
+	char** newargs = new char* [parameters.size()+1];
+	// parameter 0 is the executable path
+	// contents of the vector follow
+	// last one is NULL
+	for(Bitu i = 0; i < parameters.size(); i++) newargs[i]=(char*)parameters[i].c_str();
+	newargs[parameters.size()] = NULL;
+	if(sdl.desktop.fullscreen) SwitchFullScreen(1);
+	if(!load_videodrv) putenv((char*)("SDL_VIDEODRIVER="));
+#ifndef WIN32
+	SDL_CloseAudio();
+	SDL_Delay(50);
+	SDL_Quit();
+#if C_DEBUG
+	// shutdown curses
+	DEBUG_ShutDown(NULL);
+#endif
+#endif
+
+#ifndef WIN32
+	execvp(newargs[0], newargs);
+#endif
+#ifdef __MINGW32__
+#ifdef WIN32 // if failed under win32
+	PROCESS_INFORMATION pi;
+	STARTUPINFO si; 
+	ZeroMemory(&si,sizeof(si));
+	si.cb=sizeof(si);
+	ZeroMemory(&pi,sizeof(pi));
+
+	if(CreateProcess(NULL, newargs[0], NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
+		CloseHandle( pi.hProcess );
+		CloseHandle( pi.hThread );
+		SDL_CloseAudio();
+		SDL_Delay(50);
+        throw(0);
+		SDL_Quit();
+#if C_DEBUG
+	// shutdown curses
+		DEBUG_ShutDown(NULL);
+#endif
+	}
+#endif
+#else // if not MINGW
+#ifdef WIN32
+	char newargs_temp[32767];
+	strcpy(newargs_temp, "");
+	for(Bitu i = 1; i < parameters.size(); i++) {
+		strcat(newargs_temp, " ");
+		strcat(newargs_temp, newargs[i]);
+	}
+
+	if(ShellExecute(NULL, "open", newargs[0], newargs_temp, NULL, SW_SHOW)) {
+		SDL_CloseAudio();
+		SDL_Delay(50);
+		throw(0);
+		SDL_Quit();
+#if C_DEBUG
+	// shutdown curses
+		DEBUG_ShutDown(NULL);
+#endif
+	}
+#endif
+#endif
+	free(newargs);
+}
+
+void Restart(bool pressed) { // mapper handler
+	restart_program(control->startup_params);
+}
+
+
 static void launchcaptures(std::string const& edit) {
     std::string path,file;
     struct stat cstat;
