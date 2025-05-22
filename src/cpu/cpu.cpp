@@ -3404,16 +3404,6 @@ static void CPU_ToggleDynamicCore(bool pressed) {
 }
 #endif
 
-void CPU_Enable_SkipAutoAdjust(void) {
-	if (CPU_CycleAutoAdjust) {
-		RDTSC_rebase();
-		CPU_CycleMax /= 2;
-		if (CPU_CycleMax < CPU_CYCLES_LOWER_LIMIT)
-			CPU_CycleMax = CPU_CYCLES_LOWER_LIMIT;
-	}
-	CPU_SkipCycleAutoAdjust=true;
-}
-
 void CPU_Disable_SkipAutoAdjust(void) {
 	CPU_SkipCycleAutoAdjust=false;
 }

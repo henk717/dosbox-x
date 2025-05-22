@@ -109,7 +109,6 @@ Bits CPU_Core_KVM_Run(void);
 Bits CPU_Core_KVM_Trap_Run(void);
 #endif
 
-void CPU_Enable_SkipAutoAdjust(void);
 void CPU_Disable_SkipAutoAdjust(void);
 void CPU_Reset_AutoAdjust(void);
 
