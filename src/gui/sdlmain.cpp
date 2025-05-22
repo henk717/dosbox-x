@@ -5781,11 +5781,7 @@ void GFX_Events() {
 
                 GFX_DrawSDLMenu(mainMenu,mainMenu.display_list);
 #endif
-                SetPriority(sdl.priority.nofocus);
                 GFX_LosingFocus();
-                if( sdl.priority.nofocus != PRIORITY_LEVEL_PAUSE ) {
-                    CPU_Enable_SkipAutoAdjust();
-                }
                 break;
             default:
                 ;
